@@ -14,14 +14,41 @@ MtGox.configure do |configuration|
     configuration.currency = @currency
 end
 
-trades = MtGox.trades :pln
+trades_filename = "trades.yaml"
+fetch_delay = 60 #seconds
+
+should_fetch=true
+ if File.exists? trades_filename then
+	last_fetched = File.mtime trades_filename
+	difference = Time.now - last_fetched
+	difference = difference.to_i
+	puts "time since last fetch: #{difference}"
+	should_fetch = difference > fetch_delay
+end
+
+trades = nil
+if should_fetch then
+	puts "fetching last trades from MtGox"
+	trades = MtGox.trades :pln
+	puts "saving trades in file"
+	File.open(trades_filename,'w') do|file|
+		file.puts trades.to_yaml
+	end
+else
+	puts "loading trades from file"
+	trades = YAML::load(File.read(trades_filename))
+end
+
+
 puts "Got #{trades.count} last pln trades"
 
 puts "Finding the trend..."
-current = trades.reverse.first.price
+last_trade = trades.reverse.first
+current = last_trade.price
 trend = :flat
 previous_trend = :flat
 count = 0
+
 
 trades.reverse.each do |trade| 
 	#date = Time.at(trade.date).to_datetime
@@ -45,4 +72,4 @@ trades.reverse.each do |trade|
 end
 
 puts "Trend: #{previous_trend}, for last #{count} transactions"
-
+puts "difference: #{last_trade.price - current}"
