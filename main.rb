@@ -22,7 +22,6 @@ should_fetch=true
 	last_fetched = File.mtime trades_filename
 	difference = Time.now - last_fetched
 	difference = difference.to_i
-	puts "time since last fetch: #{difference}"
 	should_fetch = difference > fetch_delay
 end
 
@@ -39,10 +38,8 @@ else
 	trades = YAML::load(File.read(trades_filename))
 end
 
+puts
 
-puts "Got #{trades.count} last pln trades"
-
-puts "Finding the trend..."
 last_trade = trades.reverse.first
 current = last_trade.price
 trend = :flat
@@ -71,5 +68,6 @@ trades.reverse.each do |trade|
 	count += 1
 end
 
-puts "Trend: #{previous_trend}, for last #{count} transactions"
-puts "difference: #{last_trade.price - current}"
+puts "Trend: #{previous_trend.to_s.upcase}"
+puts "for last #{count} transactions, started with #{current}"
+puts "last transaction at #{last_trade.price}, difference to trend starter: #{last_trade.price - current}"
