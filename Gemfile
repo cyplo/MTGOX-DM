@@ -1,5 +1,4 @@
 # A sample Gemfile
 source "http://rubygems.org"
 
-gem "ruby-hmac"
-
+gem "guten-mtgox", :git => "git://github.com/GutenYe/mtgox.git"
