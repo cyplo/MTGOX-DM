@@ -70,12 +70,13 @@ end
 
 puts "Last trend: #{trend.to_s.upcase}"
 puts "for last #{count} transactions, started with #{previous_price}"
-puts "last transaction at #{last_trade.price}, difference to trend starter: #{last_trade.price - previous_price}"
+puts format "last transaction at #{last_trade.price}, difference to trend starter: %.5f", last_trade.price - previous_price
 
 first_trade = trades.first
 overall_trend = last_trade.price > first_trade.price ? :up : :down
-overall_timespan = last_trade.date - first_trade.date
-puts "Overall trend: #{overall_trend.to_s.upcase} over #{overall_timespan}"
+overall_timespan = (last_trade.date - first_trade.date) / (60 * 60)
+
+puts "Overall trend: #{overall_trend.to_s.upcase} over last #{overall_timespan.to_i} hours"
 overall_difference = last_trade.price - first_trade.price
-puts "first transaction at #{first_trade.price}, last transaction at #{last_trade.price} , difference: #{overall_difference}"
+puts format "first transaction at #{first_trade.price}, last transaction at #{last_trade.price} , difference: %.5f", overall_difference
 
