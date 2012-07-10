@@ -5,7 +5,7 @@ require 'ruby-debug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
 
-
+puts
 puts "Hello, this is cyplo's MtGox bot"
 puts "Using #{@key} as key"
 puts 
@@ -30,6 +30,7 @@ if should_fetch then
 	puts "fetching last trades from MtGox"
 	trades = MtGox.trades :pln
 	puts "saving trades in file"
+	trades = trades.select { |trade| trade.primary == "Y" }
 	File.open(trades_filename,'w') do|file|
 		file.puts trades.to_yaml
 	end
@@ -41,7 +42,7 @@ end
 puts
 
 last_trade = trades.reverse.first
-current = last_trade.price
+previous_price = last_trade.price
 trend = :flat
 previous_trend = :flat
 count = 0
@@ -50,12 +51,12 @@ count = 0
 trades.reverse.each do |trade| 
 	#date = Time.at(trade.date).to_datetime
 
-	if trade.price > current then
-		trend = :down
+	if trade.price > previous_price then
+		trend = :up
 	end
 	
-	if trade.price < current then
-		trend = :up
+	if trade.price < previous_price then
+		trend = :down
 	end
 	
 	if trend != previous_trend and previous_trend != :flat then
@@ -63,11 +64,18 @@ trades.reverse.each do |trade|
 	end;
 
 	previous_trend = trend
-	
-	current = trade.price
+	previous_price = trade.price	
 	count += 1
 end
 
-puts "Trend: #{previous_trend.to_s.upcase}"
-puts "for last #{count} transactions, started with #{current}"
-puts "last transaction at #{last_trade.price}, difference to trend starter: #{last_trade.price - current}"
+puts "Last trend: #{trend.to_s.upcase}"
+puts "for last #{count} transactions, started with #{previous_price}"
+puts "last transaction at #{last_trade.price}, difference to trend starter: #{last_trade.price - previous_price}"
+
+first_trade = trades.first
+overall_trend = last_trade.price > first_trade.price ? :up : :down
+overall_timespan = last_trade.date - first_trade.date
+puts "Overall trend: #{overall_trend.to_s.upcase} over #{overall_timespan}"
+overall_difference = last_trade.price - first_trade.price
+puts "first transaction at #{first_trade.price}, last transaction at #{last_trade.price} , difference: #{overall_difference}"
+
