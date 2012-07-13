@@ -1,4 +1,4 @@
 Gemfile.lock
 settings.rb
-trades.yaml
+*.cache.yaml
 

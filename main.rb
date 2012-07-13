@@ -1,9 +1,10 @@
 require 'rubygems'
 require 'mtgox'
-require 'date'
+require 'json'
 require 'ruby-debug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
+require File.expand_path(File.join(File.dirname(__FILE__), "cache"))
 
 puts
 puts "Hello, this is cyplo's MtGox bot"
@@ -12,34 +13,28 @@ puts
 
 MtGox.configure do |configuration|
     configuration.currency = @currency
+    configuration.key = @key
+    configuration.secret = @secret
 end
 
-trades_filename = "trades.yaml"
-fetch_delay = 60 #seconds
+cache = PersistentCache.new
 
-should_fetch=true
- if File.exists? trades_filename then
-	last_fetched = File.mtime trades_filename
-	difference = Time.now - last_fetched
-	difference = difference.to_i
-	should_fetch = difference > fetch_delay
-end
+cache.init_with_fetcher :trades, lambda {
+trades = MtGox.trades @currency
+trades = trades.select { |trade| trade.primary == "Y" }
+trades.reverse!
+}
 
-trades = nil
-if should_fetch then
-	puts "fetching last trades from MtGox"
-	trades = MtGox.trades :pln
-	puts "saving trades in file"
-	trades = trades.select { |trade| trade.primary == "Y" }
-	File.open(trades_filename,'w') do|file|
-		file.puts trades.to_yaml
-	end
-else
-	puts "loading trades from file"
-	trades = YAML::load(File.read(trades_filename))
-end
+me = MtGox::Me.new
+cache.init_with_fetcher :info, lambda {
+me.info
+}
 
-puts
+cache.init_with_fetcher :my_trades, lambda {
+me.trades
+}
+
+trades = cache[:trades]
 
 last_trade = trades.reverse.first
 previous_price = last_trade.price
@@ -48,7 +43,7 @@ previous_trend = :flat
 count = 0
 
 
-trades.reverse.each do |trade| 
+trades.each do |trade| 
 	#date = Time.at(trade.date).to_datetime
 
 	if trade.price > previous_price then
@@ -80,3 +75,13 @@ puts "Overall trend: #{overall_trend.to_s.upcase} over last #{overall_timespan.t
 overall_difference = last_trade.price - first_trade.price
 puts format "first transaction at #{first_trade.price}, last transaction at #{last_trade.price} , difference: %.5f", overall_difference
 
+me = MtGox::Me.new
+fee = me.info["Trade_Fee"]
+
+puts "MtGox fee:" + fee.to_s
+
+puts cache[:my_trades]
+
+#btc_amount = wallets.btc.balance.value
+#puts "BTC:"
+puts JSON.pretty_generate cache[:info]
