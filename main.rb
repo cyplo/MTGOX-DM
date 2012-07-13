@@ -5,6 +5,7 @@ require 'ruby-debug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
 require File.expand_path(File.join(File.dirname(__FILE__), "cache"))
+require File.expand_path(File.join(File.dirname(__FILE__), "trades"))
 
 puts
 puts "Hello, this is cyplo's MtGox bot"
@@ -35,48 +36,22 @@ me.trades
 }
 
 trades = cache[:trades]
+trades = Trades.new trades
 
-last_trade = trades.reverse.first
-previous_price = last_trade.price
-trend = :flat
-previous_trend = :flat
-count = 0
+puts "Last trend: #{trades.trend.to_s.upcase}, lasting for #{trades.trend_over} transactions"
+#puts "for last #{count} transactions, started with #{previous_price}"
+#puts format "last transaction at #{last_trade.price}, difference to trend starter: %.5f", last_trade.price - previous_price
 
+#first_trade = trades.first
+#overall_trend = last_trade.price > first_trade.price ? :up : :down
+#overall_timespan = (last_trade.date - first_trade.date) / (60 * 60)
 
-trades.each do |trade| 
-	#date = Time.at(trade.date).to_datetime
+#puts "Overall trend: #{overall_trend.to_s.upcase} over last #{overall_timespan.to_i} hours"
+#overall_difference = last_trade.price - first_trade.price
+#puts format "first transaction at #{first_trade.price}, last transaction at #{last_trade.price} , difference: %.5f", overall_difference
 
-	if trade.price > previous_price then
-		trend = :up
-	end
-	
-	if trade.price < previous_price then
-		trend = :down
-	end
-	
-	if trend != previous_trend and previous_trend != :flat then
-		break
-	end;
-
-	previous_trend = trend
-	previous_price = trade.price	
-	count += 1
-end
-
-puts "Last trend: #{trend.to_s.upcase}"
-puts "for last #{count} transactions, started with #{previous_price}"
-puts format "last transaction at #{last_trade.price}, difference to trend starter: %.5f", last_trade.price - previous_price
-
-first_trade = trades.first
-overall_trend = last_trade.price > first_trade.price ? :up : :down
-overall_timespan = (last_trade.date - first_trade.date) / (60 * 60)
-
-puts "Overall trend: #{overall_trend.to_s.upcase} over last #{overall_timespan.to_i} hours"
-overall_difference = last_trade.price - first_trade.price
-puts format "first transaction at #{first_trade.price}, last transaction at #{last_trade.price} , difference: %.5f", overall_difference
-
-me = MtGox::Me.new
-fee = me.info["Trade_Fee"]
+#me = MtGox::Me.new
+fee = cache[:info]["Trade_Fee"]
 
 puts "MtGox fee:" + fee.to_s
 
@@ -84,4 +59,4 @@ puts cache[:my_trades]
 
 #btc_amount = wallets.btc.balance.value
 #puts "BTC:"
-puts JSON.pretty_generate cache[:info]
+#puts JSON.pretty_generate cache[:info]
