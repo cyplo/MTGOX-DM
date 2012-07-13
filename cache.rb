@@ -18,12 +18,13 @@ def [](name)
 		should_fetch = difference > @@fetch_delay
 	end
 	if should_fetch then
-	data = @fetchers[name].call
-	
-	File.open(filename,'w') do|file|
-		file.puts data.to_yaml
-	end
+		puts "fetching "+name.to_s
+		data = @fetchers[name].call
+		File.open(filename,'w') do|file|
+			file.puts data.to_yaml
+		end
 	else
+		puts "loading "+name.to_s+" from file"
 		data = YAML::load(File.read(filename))
 	end
 	data
