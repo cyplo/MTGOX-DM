@@ -21,7 +21,6 @@ GEM
       multipart-post (~> 1.1)
     faraday_middleware (0.8.8)
       faraday (>= 0.7.4, < 0.9)
-    gruff (0.3.6)
     i18n (0.6.0)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
@@ -39,6 +38,7 @@ GEM
       ruby-debug-base19 (>= 0.11.19)
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
+    svg-graph19 (0.6.6)
     tagen (1.1.7)
       activesupport (~> 3.1.0)
       i18n
@@ -48,6 +48,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  gruff
   guten-mtgox!
   ruby-debug19
+  svg-graph19

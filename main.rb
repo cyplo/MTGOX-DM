@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'mtgox'
 require 'json'
+
 require 'ruby-debug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
@@ -56,6 +57,8 @@ fee = cache[:info]["Trade_Fee"]
 puts "MtGox fee:" + fee.to_s
 
 puts cache[:my_trades]
+
+trades.write_graph
 
 #btc_amount = wallets.btc.balance.value
 #puts "BTC:"

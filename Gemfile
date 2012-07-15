@@ -3,4 +3,5 @@ source "http://rubygems.org"
 
 gem "guten-mtgox", :git => "git://github.com/GutenYe/mtgox.git"
 gem "ruby-debug19"
-gem "gruff"
+gem "svg-graph19"
+
