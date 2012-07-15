@@ -24,7 +24,7 @@ values = Array.new
 trades = @trades.last count
 
 trades.each { |trade|
-	dates << trade.date.strftime('%k:%m')
+	dates << trade.date.strftime('%B%d %k:%m')
 	values << trade.price
 }
 
