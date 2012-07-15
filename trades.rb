@@ -16,7 +16,7 @@ def initialize trades
 	recalculate_trend
 end
 
-def write_graph count=10
+def write_graph count=8
 
 dates =  Array.new
 values = Array.new
@@ -24,7 +24,7 @@ values = Array.new
 trades = @trades.last count
 
 trades.each { |trade|
-	dates << trade.date.strftime('%B%d %k:%m')
+	dates << trade.date.strftime('%d%B %k:%m')
 	values << trade.price
 }
 
@@ -50,7 +50,7 @@ end
 private
 
 def recalculate_trend
-	first_trade = @trades.first
+	first_trade = @sorted_trades.first
 	previous_price = first_trade.price
 	trend = :flat
 	previous_trend = :flat
@@ -59,10 +59,12 @@ def recalculate_trend
 	
 	previous_trend = trend
 	if previous_price > current_trade.price then
+		#puts "deciding UP, #{previous_price} vs #{current_trade.price}"
 		trend = :up
 	end
 	
 	if previous_price < current_trade.price  then
+		#puts "deciding DOWN, #{previous_price} vs #{current_trade.price}"	
 		trend = :down
 	end
 	
