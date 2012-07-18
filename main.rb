@@ -43,7 +43,8 @@ depth = MtGox.depth
 trades = cache[:trades]
 trades = Trades.new trades
 
-puts "Last trend: #{trades.trend.to_s.upcase}, lasting for #{trades.trend_over} transactions"
+trend = trades.trend
+puts "Last trend: #{trend.to_s.upcase}, lasting for #{trades.trend_over} transactions"
 
 fee = cache[:info]["Trade_Fee"]
 
@@ -71,7 +72,16 @@ end
 last_transaction_price = trades.sorted.first.price
 puts "Last transaction priced at #{last_transaction_price}"
 if last_transaction_price > limit then
-	puts "recommendation: sell BTC"
+	if(trend == :up) then
+		puts "attempting to sell BTC"
+		gets
+		me = MtGox::Me.new
+		order = me.add "ask",btc_amount * 100000000, nil, @currency.to_s
+		puts "done"
+		gets
+		puts order
+	end
+	
 end
 
 #btc_amount = wallets.btc.balance.value
