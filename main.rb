@@ -49,11 +49,29 @@ fee = cache[:info]["Trade_Fee"]
 
 puts "MtGox fee:" + fee.to_s
 
-puts cache[:my_trades]
+my_trades = cache[:my_trades]
 
 trades.write_graph
 
-puts cache[:market].asks.first 10
-puts cache[:market].bids.first 10
+btc_wallet = cache[:info]["Wallets"]["BTC"]
+currency_wallet = cache[:info]["Wallets"][@currency.to_s.upcase]
+
+btc_amount = btc_wallet["Balance"]["value"]
+currency_amount = currency_wallet["Balance"]["value"]
+
+puts "you have #{btc_amount} BTC and #{currency_amount} #{@currency.to_s.upcase}"
+
+
+limit = 1
+if my_trades.empty? then 
+	puts "empty trades history, input a price below which you don't want to sell"
+	limit = Float(gets)
+end
+
+last_transaction_price = trades.sorted.first.price
+puts "Last transaction priced at #{last_transaction_price}"
+if last_transaction_price > limit then
+	puts "recommendation: sell BTC"
+end
 
 #btc_amount = wallets.btc.balance.value

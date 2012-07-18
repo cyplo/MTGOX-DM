@@ -7,12 +7,12 @@ class Trades
 
 attr_reader :trend
 attr_reader :trend_over
-
+attr_reader :sorted
 
 def initialize trades
 	@trades = trades
 	#note the reverse order
-	@sorted_trades = @trades.sort { |a,b| b.date <=> a.date }
+	@sorted = @trades.sort { |a,b| b.date <=> a.date }
 	recalculate_trend
 end
 
@@ -50,12 +50,12 @@ end
 private
 
 def recalculate_trend
-	first_trade = @sorted_trades.first
+	first_trade = @sorted.first
 	previous_price = first_trade.price
 	trend = :flat
 	previous_trend = :flat
 	count = 0
-	@sorted_trades.each do |current_trade|
+	@sorted.each do |current_trade|
 	
 	previous_trend = trend
 	if previous_price > current_trade.price then
