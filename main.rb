@@ -1,35 +1,21 @@
 require 'rubygems'
-require 'mtgox'
 require 'json'
-
+require 'net/http'
+require 'net/https'
 require 'ruby-debug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
-require File.expand_path(File.join(File.dirname(__FILE__), "cache"))
-require File.expand_path(File.join(File.dirname(__FILE__), "trades"))
+require File.expand_path(File.join(File.dirname(__FILE__), "mtgox"))
+
 
 puts
 puts "Hello, this is cyplo's MtGox bot"
 puts "Using #{@key} as key"
 puts 
 
-MtGox.configure do |configuration|
-    configuration.currency = @currency
-    configuration.key = @key
-    configuration.secret = @secret
-end
 
-cache = PersistentCache.new
+client = MtGoxClient.new @currency, @key, @secret
 
-cache.init_with_fetcher :trades, lambda {
-trades = MtGox.trades @currency
-trades = trades.select { |trade| trade.primary == "Y" }
-}
-
-cache.init_with_fetcher :info, lambda {
-me = MtGox::Me.new
-me.info
-}
 
 cache.init_with_fetcher :my_trades, lambda {
 me = MtGox::Me.new
