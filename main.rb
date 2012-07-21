@@ -17,20 +17,11 @@ puts
 client = MtGoxClient.new @currency, @key, @secret
 
 
-cache.init_with_fetcher :my_trades, lambda {
-me = MtGox::Me.new
-me.trades
-}
+trend = client.trades.trend
+puts "Last trend: #{trend.to_s.upcase}, lasting for #{client.trades.trend_over} transactions"
 
-cache.init_with_fetcher :market, lambda {
-depth = MtGox.depth
-}
 
-trades = cache[:trades]
-trades = Trades.new trades
-
-trend = trades.trend
-puts "Last trend: #{trend.to_s.upcase}, lasting for #{trades.trend_over} transactions"
+gets
 
 fee = cache[:info]["Trade_Fee"]
 
