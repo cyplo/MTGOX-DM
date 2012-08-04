@@ -1,7 +1,7 @@
 require 'json'
 require 'base64'
 require 'hmac-sha1'
-
+require 'awesome_print'
 require File.expand_path(File.join(File.dirname(__FILE__), "cache"))
 require File.expand_path(File.join(File.dirname(__FILE__), "trades"))
 
@@ -55,18 +55,17 @@ end
 
 
 def sign_request method, request, data=nil
-	if method == :post then
-		puts @secret
-		data_text = post_data_to_text data
-		signature = Base64.strict_encode64(
-        OpenSSL::HMAC.digest 'sha512',
-        Base64.decode64(@secret),
-        data_text
-		)
-		puts signature
-		gets
-		request["Rest-Sign"] = signature
-	end
+	if method != :post then return end
+	puts "secret: #{@secret}"
+	data_text = post_data_to_text data
+	signature = Base64.strict_encode64(
+	OpenSSL::HMAC.digest 'sha512',
+	Base64.decode64(@secret),
+	data_text
+	)
+	puts "signature:#{signature}"
+	gets
+	request["Rest-Sign"] = signature
 end
 
 def post_data_to_text data
@@ -84,13 +83,16 @@ def request url, method=:get
 			request = Net::HTTP::Post.new uri.request_uri
 			data = Hash.new
 			data['nonce']=Time.now.to_i
+			#data['nonce']=1344029006332059
 			request.body = (post_data_to_text data)
+			ap request.body
+			request["Rest-Key"] = @key
 		end
-		request["User-Agent"] = "cyplo.net"
-        request["Rest-Key"] = @key
+		#request["User-Agent"] = "cyplo.net"
+        
         sign_request method, request, data
-        puts request.inspect
-		response = http.request request
+        ap request
+        response = http.request request
 		response = response.body
 	end
 	response

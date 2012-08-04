@@ -2,6 +2,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     archive-tar-minitar (0.5.2)
+    awesome_print (1.0.2)
     columnize (0.3.6)
     linecache19 (0.5.12)
       ruby_core_source (>= 0.1.4)
@@ -22,6 +23,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  awesome_print
   ruby-debug19
   ruby-hmac
   svg-graph19

@@ -2,7 +2,7 @@ require 'rubygems'
 require 'json'
 require 'net/http'
 require 'net/https'
-require 'ruby-debug'
+#require 'ruby-debug'
 
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
 require File.expand_path(File.join(File.dirname(__FILE__), "mtgox"))
