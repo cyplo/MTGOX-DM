@@ -7,23 +7,19 @@ require 'ruby-debug'
 require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
 require File.expand_path(File.join(File.dirname(__FILE__), "mtgox"))
 
-
 puts
 puts "Hello, this is cyplo's MtGox bot"
 puts "Using #{@key} as key"
 puts 
 
-
 client = MtGoxClient.new @currency, @key, @secret
-
 
 trend = client.trades.trend
 puts "Last trend: #{trend.to_s.upcase}, lasting for #{client.trades.trend_over} transactions"
 
-
+puts client.info
 gets
 
-fee = cache[:info]["Trade_Fee"]
 
 puts "MtGox fee:" + fee.to_s
 
