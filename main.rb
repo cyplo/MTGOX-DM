@@ -2,26 +2,30 @@ require 'rubygems'
 require 'json'
 require 'net/http'
 require 'net/https'
+require 'yaml'
 #require 'ruby-debug'
+require 'mtgox'
 
-require File.expand_path(File.join(File.dirname(__FILE__), "settings"))
-require File.expand_path(File.join(File.dirname(__FILE__), "mtgox"))
+
+require_relative "settings"
+require_relative "cmtgox"
 
 puts
 puts "Hello, this is cyplo's MtGox bot"
 puts "Using #{@key} as key"
 puts 
 
+
 client = MtGoxClient.new @currency, @key, @secret
 
 trend = client.trades.trend
 puts "Last trend: #{trend.to_s.upcase}, lasting for #{client.trades.trend_over} transactions"
 
-puts client.info
+puts client.balance
+puts "MtGox fee:" + client.fee.to_s
 gets
 
 
-puts "MtGox fee:" + fee.to_s
 
 my_trades = cache[:my_trades]
 
