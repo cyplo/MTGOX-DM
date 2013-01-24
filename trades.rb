@@ -26,7 +26,7 @@ trades = @trades.last count
 trades.each { |trade|
 	date = Time.at trade.date
 	dates << date.strftime('%d %B %k:%m')
-	values << trade.price.to_i
+	values << trade.price.to_f
 }
 
 fields = dates

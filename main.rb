@@ -28,24 +28,40 @@ client.trades.write_graph
 
 
 limit = 1
-if my_trades.empty? then 
+if client.personal_trades.empty? then 
 	puts "empty trades history, input a price below which you don't want to sell"
 	limit = Float(gets)
+else
+	#todo
+	limit = client.personal_trades.first.price
 end
 
-last_transaction_price = trades.sorted.first.price
+last_transaction_price = client.trades.sorted.first.price.to_f
 puts "Last transaction priced at #{last_transaction_price}"
-if last_transaction_price > limit then
-	if(trend == :up) then
-		puts "attempting to sell BTC"
-		gets
-		me = MtGox::Me.new
-		order = me.add "ask",btc_amount * 100000000, nil, @currency.to_s
-		puts "done"
-		gets
-		puts order
+
+bought_at = limit
+
+def get_new_selling_price trend, previous_price
+	if trend == :up then 
+		return previous_price + 0.01
+	else 
+		return previous_price - 0.01
 	end
-	
 end
+
+def get_new_buying_price selling_price
+	selling_price - 0.01
+end
+
+selling_price = get_new_selling_price trend, last_transaction_price
+
+if selling_price > bought_at then
+	amount = 0.01
+	puts "attempting to sell #{amount} BTC for at least #{selling_price}"
+	buying_price = get_new_buying_price selling_price
+	puts "making matching transaction to buy #{amount} BTC for at most #{buying_price}"
+	gets		
+end
+
 
 #btc_amount = wallets.btc.balance.value

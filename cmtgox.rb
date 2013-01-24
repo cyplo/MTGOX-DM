@@ -36,11 +36,22 @@ end
 @cache.init_with_fetcher :info, lambda {
   MtGox.info
 }
+
+@cache.init_with_fetcher :personal_trades, lambda {
+  Array.new
+}
+
+end
+
+def personal_trades
+  @cache[:personal_trades]
 end
 
 def trades
 	@cache[:trades]
 end
+
+
 
 def btc_balance
   info["Wallets"]["BTC"]["Balance"]["value"]

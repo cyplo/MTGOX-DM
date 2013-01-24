@@ -1,8 +1,8 @@
 GIT
-  remote: git://github.com/pirapira/mtgox.git
-  revision: 61adf6f43efe76bfe9d7ae72d394523bb82036ff
+  remote: git://github.com/cyplo/mtgox.git
+  revision: bf500ceb8c84dc159b97b65112c69c73a8ac50fa
   specs:
-    mtgox (0.8.0)
+    mtgox (0.8.6)
       faraday (~> 0.8)
       faraday_middleware (~> 0.8)
       multi_json (~> 1.3)
@@ -11,7 +11,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     archive-tar-minitar (0.5.2)
-    awesome_print (1.0.2)
+    awesome_print (1.1.0)
     columnize (0.3.6)
     faraday (0.8.4)
       multipart-post (~> 1.1)
