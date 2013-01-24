@@ -54,13 +54,25 @@ def get_new_buying_price selling_price
 end
 
 selling_price = get_new_selling_price trend, last_transaction_price
+balance = client.btc_balance.to_f
+money_having = client.currency_balance.to_f
 
-if selling_price > bought_at then
-	amount = 0.01
-	puts "attempting to sell #{amount} BTC for at least #{selling_price}"
+while selling_price > bought_at and balance > 1.0
+	sleep 1
+	amount = 0.1
+	puts "attempting to sell #{amount} BTC for at least #{selling_price} #{@currency}"
+	MtGox.sell! amount, selling_price, @currency
+	sleep 1
+	balance -= amount
 	buying_price = get_new_buying_price selling_price
-	puts "making matching transaction to buy #{amount} BTC for at most #{buying_price}"
-	gets		
+	puts "making matching transaction to buy #{amount} BTC for at most #{buying_price} #{@currency}"
+	money_needed = amount * buying_price
+	if(money_needed > money_having) then 
+		"oops, don't have #{money_needed} #{@currency} to continue, wait for selling orders to flush"
+		break
+	end
+	MtGox.buy! amount, buying_price, @currency
+	bought_at = buying_price
 end
 
 
