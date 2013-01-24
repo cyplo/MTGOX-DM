@@ -68,7 +68,7 @@ while selling_price > bought_at and balance > 1.0
 	puts "making matching transaction to buy #{amount} BTC for at most #{buying_price} #{@currency}"
 	money_needed = amount * buying_price
 	if(money_needed > money_having) then 
-		"oops, don't have #{money_needed} #{@currency} to continue, wait for selling orders to flush"
+		puts "oops, don't have #{money_needed} #{@currency} to continue, wait for selling orders to flush"
 		break
 	end
 	MtGox.buy! amount, buying_price, @currency
