@@ -33,6 +33,6 @@ end
 
 private
 
-@@fetch_delay = 120
+@@fetch_delay = 20
 
 end

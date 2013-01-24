@@ -28,6 +28,8 @@ client.trades.write_graph
 
 
 limit = 1
+last_transaction_price = client.trades.sorted.first.price.to_f
+puts "Last transaction priced at #{last_transaction_price}"
 if client.personal_trades.empty? then 
 	puts "empty trades history, input a price below which you don't want to sell"
 	limit = Float(gets)
@@ -36,40 +38,48 @@ else
 	limit = client.personal_trades.first.price
 end
 
-last_transaction_price = client.trades.sorted.first.price.to_f
-puts "Last transaction priced at #{last_transaction_price}"
+
 
 bought_at = limit
 
 def get_new_selling_price trend, previous_price
 	if trend == :up then 
-		return previous_price + 0.01
+		return previous_price + 0.0001
 	else 
-		return previous_price - 0.01
+		return previous_price - 0.2
 	end
 end
 
 def get_new_buying_price selling_price
-	selling_price - 0.01
+	selling_price - 0.0001
+end
+
+def wait_for_funds client, money_needed
+	sleep 15 until client.currency_balance >= money_needed
 end
 
 selling_price = get_new_selling_price trend, last_transaction_price
-balance = client.btc_balance.to_f
-money_having = client.currency_balance.to_f
+while selling_price > bought_at and client.btc_balance > 1.0
+	sleep 1
+	#refresh
+	last_transaction_price = client.trades.sorted.first.price.to_f
+	money_having = client.currency_balance
+	trend = client.trades.trend
+	sleep 1
 
-while selling_price > bought_at and balance > 1.0
-	sleep 1
-	amount = 0.1
+	amount = 0.01
+	selling_price = get_new_selling_price trend, last_transaction_price
 	puts "attempting to sell #{amount} BTC for at least #{selling_price} #{@currency}"
+	#todo: check for last sell transactions to match
 	MtGox.sell! amount, selling_price, @currency
-	sleep 1
-	balance -= amount
+	sleep 15
 	buying_price = get_new_buying_price selling_price
 	puts "making matching transaction to buy #{amount} BTC for at most #{buying_price} #{@currency}"
 	money_needed = amount * buying_price
 	if(money_needed > money_having) then 
-		puts "oops, don't have #{money_needed} #{@currency} to continue, wait for selling orders to flush"
-		break
+		puts "oops, don't have #{money_needed} #{@currency} to continue, waiting for selling orders to flush"
+		wait_for_funds client, money_needed
+		puts "money's back !"
 	end
 	MtGox.buy! amount, buying_price, @currency
 	bought_at = buying_price

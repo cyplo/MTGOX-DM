@@ -34,7 +34,11 @@ end
 }
 
 @cache.init_with_fetcher :info, lambda {
-  MtGox.info
+  begin
+    MtGox.info
+  rescue Timeout::Error
+    retry
+  end
 }
 
 @cache.init_with_fetcher :personal_trades, lambda {
@@ -54,11 +58,11 @@ end
 
 
 def btc_balance
-  info["Wallets"]["BTC"]["Balance"]["value"]
+  info["Wallets"]["BTC"]["Balance"]["value"].to_f
 end
 
 def currency_balance
-  info["Wallets"][@currency]["Balance"]["value"]
+  info["Wallets"][@currency]["Balance"]["value"].to_f
 end
 
 def info
