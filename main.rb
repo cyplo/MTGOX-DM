@@ -20,24 +20,11 @@ client = MtGoxClient.new @currency, @key, @secret
 
 trend = client.trades.trend
 puts "Last trend: #{trend.to_s.upcase}, lasting for #{client.trades.trend_over} transactions"
+puts "you have #{client.btc_balance} BTC and #{client.currency_balance} #{@currency.to_s.upcase}"
 
-puts client.balance
-puts "MtGox fee:" + client.fee.to_s
-gets
+puts "MtGox fee: " + client.fee.to_s
 
-
-
-my_trades = cache[:my_trades]
-
-trades.write_graph
-
-btc_wallet = cache[:info]["Wallets"]["BTC"]
-currency_wallet = cache[:info]["Wallets"][@currency.to_s.upcase]
-
-btc_amount = btc_wallet["Balance"]["value"]
-currency_amount = currency_wallet["Balance"]["value"]
-
-puts "you have #{btc_amount} BTC and #{currency_amount} #{@currency.to_s.upcase}"
+client.trades.write_graph
 
 
 limit = 1
