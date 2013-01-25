@@ -24,24 +24,6 @@ puts "you have #{client.btc_balance} BTC and #{client.currency_balance} #{@curre
 
 puts "MtGox fee: " + client.fee.to_s
 
-client.trades.write_graph
-
-
-limit = 1
-last_transaction_price = client.trades.sorted.first.price.to_f
-puts "Last transaction priced at #{last_transaction_price}"
-if client.personal_trades.empty? then 
-	puts "empty trades history, input a price below which you don't want to sell"
-	limit = Float(gets)
-else
-	#todo
-	limit = client.personal_trades.first.price
-end
-
-
-
-bought_at = limit
-
 def get_new_selling_price trend, previous_price
 	if trend == :up then 
 		return previous_price - 0.00001
@@ -50,63 +32,62 @@ def get_new_selling_price trend, previous_price
 	end
 end
 
-def get_new_buying_price selling_price
-	selling_price - 0.0001
-end
-
 def wait_for_funds client, money_needed
 	sleep 15 until client.currency_balance >= money_needed
 end
 
-selling_price = get_new_selling_price trend, last_transaction_price
-while selling_price > bought_at and client.btc_balance > 1.0
-	sleep 1
-	#refresh
-	last_transaction_price = client.trades.sorted.first.price.to_f
-	money_having = client.currency_balance
-	trend = client.trades.trend
-	sleep 1
-
-	amount = 0.01
-	selling_price = get_new_selling_price trend, last_transaction_price
-	puts "[SELL] #{amount} BTC for at least #{selling_price} #{@currency}"
-	#todo: check for last sell transactions to match
-	begin
-		MtGox.sell! amount, selling_price, @currency
-	rescue
-		puts "error selling, continuing"
-	end
-	begin
-		sleep 30 until MtGox.sells.empty?
-	rescue
-		puts "error waiting, retrying"
-		retry
-	end
-	buying_price = get_new_buying_price selling_price
-	money_needed = amount * buying_price
-	if(money_having == 0) then 
-		puts "oops, don't have #{money_needed} #{@currency} to continue, waiting for selling orders to flush"
-		wait_for_funds client, money_needed
-		puts "money's back !"
-	end
-	if(money_having < money_needed) then
-		amount = money_having / buying_price
-	end
+def buy amount, buying_price
 	puts "[BUY]  #{amount} BTC for at most  #{buying_price} #{@currency}"
 	begin
 		MtGox.buy! amount, buying_price, @currency
-		bought_at = buying_price
 	rescue
-		puts "error buying, continuing"
+		puts "error buying, retrying"
+		sleep 15
+		retry
 	end
 	begin
+		sleep 15
+	end until MtGox.buys.empty?
+end
+
+def sell amount, price
+	puts "[SELL] #{amount} BTC for at least #{price} #{@currency}"
+	begin
+		MtGox.sell! amount, price, @currency
+	rescue
+		puts "error selling, retrying"
+		sleep 15
+		retry
+	end
+	wait_for_orders
+end
+
+def wait_for_orders
+	begin
 		sleep 30 until MtGox.sells.empty?
-		sleep 30 until MtGox.buys.empty?
 	rescue
 		puts "error waiting, retrying"
 		retry
 	end
 end
 
-
-#btc_amount = wallets.btc.balance.value
+loop do
+	sleep 15
+	client.trades.write_graph
+	last_transaction_price = client.trades.sorted.first.price.to_f
+	if client.currency_balance > 0 then
+		buying_price = last_transaction_price
+		if client.trades.trend == :up
+			buying_price += 0.1
+		else
+			buying_price -= 0.1
+		end
+		amount = client.currency_balance / buying_price
+		buy amount, buying_price
+		selling_price = buying_price + 0.001
+		sell client.btc_balance, selling_price
+	else
+		puts "waiting for funds..."
+		wait_for_funds 1
+	end
+end
