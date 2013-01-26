@@ -1,8 +1,8 @@
 GIT
   remote: git://github.com/cyplo/mtgox.git
-  revision: bf500ceb8c84dc159b97b65112c69c73a8ac50fa
+  revision: 9d5f98c50ac377e99dd694d9b7f85263118149f9
   specs:
-    mtgox (0.8.6)
+    mtgox (0.8.7)
       faraday (~> 0.8)
       faraday_middleware (~> 0.8)
       multi_json (~> 1.3)
